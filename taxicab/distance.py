@@ -441,10 +441,6 @@ def shortest_path(
         # compute initial route 
         route = nx_shortest_path(G, orig_edge[0], dest_edge[0], 'length')
 
-        print(orig_edge)
-        print(dest_edge)
-        print(route)
-
         # annoying edge case: route matches first edge
         if route[0] == orig_edge[0] and route[1] == dest_edge[0]:
             route, orig_edge_p, dest_edge_p = route_across_multiple_edges(

@@ -1,2 +1,3 @@
-from .__about__ import __version__
-from .__about__ import __author__
+from ._about import __version__
+from ._about import __author__
+from ._api import *

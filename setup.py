@@ -1,8 +1,11 @@
 from setuptools import setup
 import taxicab as tc
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as f:
+    long_description = f.read()
+    
+ with open("requirements.txt", "r") as f:
+    INSTALL_REQUIRES = [line.strip() for line in f.readlines()]
 
 setup(
     name='Taxicab',
@@ -15,6 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=['taxicab'],
     python_requires='>=3.5',
+    install_requires=INSTALL_REQUIRES,
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',

@@ -53,6 +53,24 @@ def plot_taxi(G, orig, dest, padding):
     return tc_buf
     
     
+def plot_compare(orig, dest, padding, filename):
+    tc_buf = plot_taxi(G, orig, dest, padding)
+    ox_buf = plot_osmnx(G, orig, dest, padding)
+
+    fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,15))
+    img1 = Image.open(tc_buf)
+    img2 = Image.open(ox_buf)
+    ax1.imshow(img1)
+    ax1.set_title('Taxicab', fontsize=16)
+    ax1.axes.xaxis.set_visible(False)
+    ax1.axes.yaxis.set_visible(False)
+    ax2.imshow(img2)
+    ax2.set_title('OSMnx', fontsize=16)
+    ax2.axes.xaxis.set_visible(False)
+    ax2.axes.yaxis.set_visible(False)
+    plt.savefig(filename, dpi=100, bbox_inches='tight')
+
+
 #--- GENERATE EXAMPLES --------------------------------------------------------+
 
 xmin = -84.324217
@@ -64,62 +82,17 @@ G = graph_from_bbox(ymax, ymin, xmin, xmax, network_type='drive', simplify=True)
 # SAME EDGE
 orig = (39.0884, -84.3232)
 dest = (39.08843038088047, -84.32261113356783)
-
 padding = [0.002, 0.0015, 0.001, 0.001] # left, right, top, bottom
-tc_buf = plot_taxi(G, orig, dest, padding)
-ox_buf = plot_osmnx(G, orig, dest, padding)
-
-fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,15))
-img1 = Image.open(tc_buf)
-img2 = Image.open(ox_buf)
-ax1.imshow(img1)
-ax1.set_title('Taxicab', fontsize=16)
-ax1.axes.xaxis.set_visible(False)
-ax1.axes.yaxis.set_visible(False)
-ax2.imshow(img2)
-ax2.set_title('OSMnx', fontsize=16)
-ax2.axes.xaxis.set_visible(False)
-ax2.axes.yaxis.set_visible(False)
-plt.savefig('ex_01.jpg', dpi=100, bbox_inches='tight')
+plot_compare(orig, dest, padding, 'ex_01.jpg')
 
 # SHORT ROUTES
 orig = (39.08734, -84.32400)
 dest = (39.08840, -84.32307)
-
 padding = [0.001, 0.0015, 0.001, 0.001] # left, right, top, bottom
-tc_buf = plot_taxi(G, orig, dest, padding)
-ox_buf = plot_osmnx(G, orig, dest, padding)
-
-fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,15))
-img1 = Image.open(tc_buf)
-img2 = Image.open(ox_buf)
-ax1.imshow(img1)
-ax1.set_title('Taxicab', fontsize=16)
-ax1.axes.xaxis.set_visible(False)
-ax1.axes.yaxis.set_visible(False)
-ax2.imshow(img2)
-ax2.set_title('OSMnx', fontsize=16)
-ax2.axes.xaxis.set_visible(False)
-ax2.axes.yaxis.set_visible(False)
-plt.savefig('ex_02.jpg', dpi=100, bbox_inches='tight')
+plot_compare(orig, dest, padding, 'ex_02.jpg')
 
 # NEAREST NODE IS FAR AWAY
 orig = (39.08710, -84.31050)
 dest = (39.08800, -84.32000)
-
 padding = [0.0025, 0.001, 0.004, 0.001] # left, right, top, bottom
-tc_buf = plot_taxi(G, orig, dest, padding)
-ox_buf = plot_osmnx(G, orig, dest, padding)
-
-fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,15))
-img1 = Image.open(tc_buf)
-img2 = Image.open(ox_buf)
-ax1.imshow(img1)
-ax1.set_title('Taxicab', fontsize=16)
-ax1.axes.xaxis.set_visible(False)
-ax1.axes.yaxis.set_visible(False)
-ax2.imshow(img2)
-ax2.set_title('OSMnx', fontsize=16)
-ax2.axes.xaxis.set_visible(False)
-ax2.axes.yaxis.set_visible(False)
-plt.savefig('ex_03.jpg', dpi=100, bbox_inches='tight')
+plot_compare(orig, dest, padding, 'ex_03.jpg')

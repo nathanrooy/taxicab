@@ -4,7 +4,7 @@ import taxicab as tc
 with open("README.md", "r") as f:
     long_description = f.read()
     
- with open("requirements.txt", "r") as f:
+with open("requirements.txt", "r") as f:
     INSTALL_REQUIRES = [line.strip() for line in f.readlines()]
 
 setup(

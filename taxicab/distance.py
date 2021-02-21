@@ -15,9 +15,9 @@ from shapely.geometry import LineString
 from osmnx.distance import get_nearest_edge
 from osmnx.utils_graph import get_route_edge_attributes
 
-from constants import R     # haversine
-from constants import a     # vincenty
-from constants import f     # vincenty
+from .constants import R     # haversine
+from .constants import a     # vincenty
+from .constants import f     # vincenty
 
 
 def haversine(orig, dest):

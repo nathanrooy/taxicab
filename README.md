@@ -54,7 +54,8 @@ tc.plot.plot_graph_route(G, route)
 ```
 
 Should yield the following:
-<img src="https://github.com/nathanrooy/taxicab/blob/main/docs/readme.png">>
+
+<img src="https://github.com/nathanrooy/taxicab/blob/main/docs/readme.png">
 
 ## User reference
 ```python

@@ -68,7 +68,7 @@ def plot_compare(orig, dest, padding, filename):
     ax2.set_title('OSMnx', fontsize=16)
     ax2.axes.xaxis.set_visible(False)
     ax2.axes.yaxis.set_visible(False)
-    plt.savefig(filename, dpi=100, bbox_inches='tight')
+    plt.savefig(filename, dpi=100, bbox_inches='tight', pad_inches=0.25)
 
 
 #--- GENERATE EXAMPLES --------------------------------------------------------+

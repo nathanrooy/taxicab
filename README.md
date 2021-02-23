@@ -7,13 +7,13 @@
 ## Taxicab
 When routing between two points of longitude and latitude, the built in routing functionality in <a href="https://github.com/gboeing/osmnx">OSMnx</a> will find the nearest network nodes and route between those. This assumption is fine, and works for many applications but when you need routing with a little more accuracy you'll want to consider using Taxicab. Below are a few examples which highlight Taxicab usecases:
 
-When the nearest nodes are not that close
-<img src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_03.jpg">
+<b>When the nearest nodes are not that close:</b>
+<img style="padding-top:5em;" src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_03.jpg">
 
-When routing along a single edge:
+<b>When routing along a single edge:</b>
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_01.jpg">
 
-When routing along short routes:
+<b>When routing along short routes:</b>
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_02.jpg">
 
 ## Installation

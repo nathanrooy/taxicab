@@ -88,7 +88,7 @@ plot_compare(orig, dest, padding, 'ex_01.jpg')
 # SHORT ROUTES
 orig = (39.08734, -84.32400)
 dest = (39.08840, -84.32307)
-padding = [0.001, 0.0015, 0.001, 0.001] # left, right, top, bottom
+padding = [0.001, 0.0015, 0.0002, 0.0006] # left, right, top, bottom
 plot_compare(orig, dest, padding, 'ex_02.jpg')
 
 # NEAREST NODE IS FAR AWAY

@@ -42,7 +42,7 @@ orig = (39.08710, -84.31050)
 dest = (39.08800, -84.32000) 
 ```
 
-And the route is generated via the following:
+Compute the route via the following:
 ```python
 import taxicab as tc
 route = tc.distance.shortest_path(G, orig, dest)
@@ -52,10 +52,26 @@ Which can then be plotted:
 ```python
 tc.plot.plot_graph_route(G, route)
 ```
-
-Should yield the following:
-
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/readme.png">
+
+
+The returned route tuple is comprised of four elements:
+- Route length in meters
+```python
+>>> route[0]
+669.0529395595279
+```
+- List of node IDs representing the bulk of the route (this is identical to OSMnx).
+```python
+>>> route[1]
+[197546973, 2090608743, 197656382, 197633479]
+```
+- And two partial edges represented by `shapely.geometry.linestring.LineString` objects. If populated, these represent the first and last segments of the route that extend from the first or last node to some point along that edge.
+```python
+>>> route[2], route[3]
+(<shapely.geometry.linestring.LineString at 0x7f1aa08067c0>,
+ <shapely.geometry.linestring.LineString at 0x7f1a3ccbd580>)
+```
 
 ## User reference
 ```python

@@ -27,7 +27,7 @@ pip install git+https://github.com/nathanrooy/taxicab
 ```
 
 ## Example usage
-Taxicab is designed to be used as a drop in replacement for the standard routing functionality found on OSMnx. So, like usual, download a portion of the OpenStreetMap network graph:
+Taxicab is designed to be used as a drop in replacement for the standard routing functionality found on OSMnx. So, like usual, download a portion of the OpenStreetMap graph:
 
 ```python
 from osmnx import graph_from_bbox

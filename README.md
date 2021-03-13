@@ -96,3 +96,4 @@ Used exactly the same way as `osmnx.plot.plot_graph_route` except that it uses t
 
 
 ## Performance Considerations
+Coming soon...

@@ -12,13 +12,13 @@ G = ox.load_graphml(NETWORK_PATH)
 
 
 class test_main(unittest.TestCase):
-    def test_same_edge(self):
+    def test_short_route(self):
         orig = (39.0884, -84.3232)
         dest = (39.08843038088047, -84.32261113356783)
         route = tc.distance.shortest_path(G, orig, dest)
         self.assertEqual(route[0], 108.98249858377586)
 
-    def test_short_route(self):
+    def test_same_edge(self):
         orig = (39.08734, -84.32400)
         dest = (39.08840, -84.32307)
         route = tc.distance.shortest_path(G, orig, dest)

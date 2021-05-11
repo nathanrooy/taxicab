@@ -1,191 +1,49 @@
-from math import atan
-from math import atan2
-from math import cos
-from math import radians
-from math import sin
-from math import sqrt
-from math import tan
-
-from numpy import argmin
 from networkx import shortest_path as nx_shortest_path
 
 from shapely.geometry import Point
 from shapely.geometry import LineString
+from shapely.ops import substring
 
-from osmnx.distance import get_nearest_edge
+from osmnx.distance import nearest_edges
+from osmnx.distance import great_circle_vec
 from osmnx.utils_graph import get_route_edge_attributes
 
-from taxicab.constants import R     # haversine
-from taxicab.constants import a     # vincenty
-from taxicab.constants import f     # vincenty
 
-
-def haversine(orig, dest):
+def compute_linestring_length(ls):
     '''
-    Compute the distance between to (lat,lng) pairs using the haversine method.
+    Computes the length of a partial edge (shapely linesting)
     
     Parameters
     ----------
-    orig : tuple
-        origin point (latitude, longitude)
-    dest : tuple
-        destination point (latitude, longitude)
-    
-    Returns
-    -------
-    float : distance in meters
-    '''
-    
-    lat1, lon1 = orig
-    lat2, lon2 = dest
-
-    phi_1 = radians(lat1)
-    phi_2 = radians(lat2)
-
-    delta_phi = radians(lat2 - lat1)
-    delta_lambda = radians(lon2 - lon1)
-
-    a = (sin(delta_phi/2.0)**2 + 
-    cos(phi_1)*cos(phi_2) * 
-    sin(delta_lambda/2.0)**2)
-
-    c=2*atan2(sqrt(a),sqrt(1-a))
-
-    return R * c
-    
-
-def vincenty_inverse(orig, dest, maxIter=200, tol=10**-12):
-    '''
-    Computes the distance between two (lat/lng) points using the iterative 
-    inverse vincenty approach.
-
-    Parameters
-    ----------
-    orig : tuple
-        origin point (latitude, longitude)
-    dest : tuple
-        destination point (latitude, longitude)
-        
-    Returns
-    -------
-    dist_m : float
-        distance between orig and dest in meters
-    '''
-
-    #--- CONSTANTS ------------------------------------+
-
-    b=(1-f)*a
-
-    phi_1, L_1 = orig
-    phi_2, L_2 = dest
-
-    u_1=atan((1-f)*tan(radians(phi_1)))
-    u_2=atan((1-f)*tan(radians(phi_2)))
-
-    L=radians(L_2-L_1)
-
-    Lambda=L
-
-    sin_u1=sin(u_1)
-    cos_u1=cos(u_1)
-    sin_u2=sin(u_2)
-    cos_u2=cos(u_2)
-
-    #--- BEGIN ITERATIONS -----------------------------+
-    for i in range(0, maxIter):
-        cos_lambda=cos(Lambda)
-        sin_lambda=sin(Lambda)
-        sin_sigma=sqrt((cos_u2*sin(Lambda))**2+(cos_u1*sin_u2-sin_u1*cos_u2*cos_lambda)**2)
-        cos_sigma=sin_u1*sin_u2+cos_u1*cos_u2*cos_lambda
-        sigma=atan2(sin_sigma,cos_sigma)
-        sin_alpha=(cos_u1*cos_u2*sin_lambda)/sin_sigma
-        cos_sq_alpha=1-sin_alpha**2
-        cos2_sigma_m=cos_sigma-((2*sin_u1*sin_u2)/cos_sq_alpha)
-        C=(f/16)*cos_sq_alpha*(4+f*(4-3*cos_sq_alpha))
-        Lambda_prev=Lambda
-        Lambda=L+(1-C)*f*sin_alpha*(sigma+C*sin_sigma*(cos2_sigma_m+C*cos_sigma*(-1+2*cos2_sigma_m**2)))
-
-        # successful convergence
-        diff=abs(Lambda_prev-Lambda)
-        if diff<=tol:
-            break
-
-    u_sq=cos_sq_alpha*((a**2-b**2)/b**2)
-    A=1+(u_sq/16384)*(4096+u_sq*(-768+u_sq*(320-175*u_sq)))
-    B=(u_sq/1024)*(256+u_sq*(-128+u_sq*(74-47*u_sq)))
-    delta_sig=B*sin_sigma*(cos2_sigma_m+0.25*B*(cos_sigma*(-1+2*cos2_sigma_m**2)-(1/6)*B*cos2_sigma_m*(-3+4*sin_sigma**2)*(-3+4*cos2_sigma_m**2)))
-    dist_m = b * A * (sigma - delta_sig)
-    return dist_m
-
-
-def compute_partial_edge(G, route, edge, point):
-    '''
-    
-    Parameters
-    ----------
-    G : networkx.MultiDiGraph
-        input graph
-    route : list
-        route as a list of node IDs
-    edge : tuple
-        graph edge unique identifier as a tuple: (u, v, key)
-    point : tuple
-        a point defined as (lat, lng) or (y, x)
-
-    Returns
-    -------
-    edge_pts : list
-        ordered list of (lng, lat) points.
-    '''
-
-    # get edge geometry
-    edge_pts = get_edge_geometry(G, edge)
-
-    # find the index position on the edge nearest the point
-    idx = find_nearest_edge_point(edge_pts, point)
-            
-    # first node of current edge matches first node of route (GOOD)
-    if edge[0] == route[0]:
-        if idx != 0: return edge_pts[:idx+1][::-1]
-
-    # last node of current edge matches first node of route (GOOD)
-    if edge[1] == route[0]:
-        return edge_pts[idx:]
-
-    # first node of current edge matches last node of route (GOOD)
-    if edge[0] == route[-1]:
-        return edge_pts[:idx+1]
-
-    # last node of current edge matches last node of route (GOOD)
-    if edge[1] == route[-1]:
-        return edge_pts[idx:][::-1]
-
-    return []
-
-
-def compute_partial_edge_length(G, pointseq, distfunc=vincenty_inverse):
-    '''
-    Computes the length of a partial edge
-    
-    Parameters
-    ----------
-    G : networkx.MultiDiGraph
-        input graph
-    pointseq : list
-        ordered list of (lng, lat) points.
-    dist_func : function
-        function used to compute distance between (lat,lng) pairs
+    ls : shapely.geometry.linestring.LineString
 
     Returns
     -------
     float : partial edge length distance in meters
     '''
+
+    if type(ls) == LineString:
+        x, y = zip(*ls.coords)
     
+        dist = 0
+        for i in range(0, len(x)-1):
+            dist += great_circle_vec(y[i], x[i], y[i+1], x[i+1])
+        return dist
+    else: return None
+
+
+def compute_taxi_length(G, nx_route, orig_partial_edge, dest_partial_edge):
+    '''
+    Computes the route complete taxi route length
+    '''
+
     dist = 0
-    for i in range(0, len(pointseq)-1):
-        dist += distfunc(
-            (pointseq[i][0], pointseq[i][1]),
-            (pointseq[i+1][0], pointseq[i+1][1]))
+    if nx_route:
+        dist += sum(get_route_edge_attributes(G, nx_route, 'length'))
+    if orig_partial_edge:
+        dist += compute_linestring_length(orig_partial_edge)
+    if dest_partial_edge:
+        dist += compute_linestring_length(dest_partial_edge)
     return dist
 
 
@@ -212,212 +70,28 @@ def get_edge_geometry(G, edge):
     the current edge is just a straight line. This results in an
     automatic assignment of edge end points.
     '''
-    try: 
-        return list(G.edges[edge]['geometry'].coords)
-    
-    except KeyError:
-        print('keyerror')
-        return [
+
+    if G.edges[edge].get('geometry', 0):
+        return G.edges[edge]['geometry']
+
+    elif G.edges[(edge[1], edge[0], 0)].get('geometry', 0):
+        return G.edges[(edge[1], edge[0], 0)]['geometry']
+
+    else:
+        return LineString([
             (G.nodes[edge[0]]['x'], G.nodes[edge[0]]['y']),
-            (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])]
+            (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])])
 
 
-def remove_overlapping_edge(route, edge):
-    '''
-    Removes an edge from a route if the route contains the edge in question.
-    Returns an updated route without the edge, otherwise returns the original
-    route.
-
-    Parameters
-    ----------
-    route : list
-        route as a list of node IDs
-    edge : tuple
-        graph edge unique identifier as a tuple: (u, v, key)
-
-    Returns
-    -------
-    route : list
-        route as a list of node IDs
-    '''
-    # first edge of route matches current edge
-    if tuple(route[:2]) == edge[:2]:
-        route = route[1:][:]
-
-    # first edge of route matches current edge (reverse)
-    if tuple(route[:2]) == edge[:2][::-1]:
-        pass
-
-    # last edge of route matches current edge
-    if tuple(route[-2:]) == edge[:2]:
-        pass
-
-    # last edge of route matches current edge (reverse)
-    if tuple(route[-2:]) == edge[:2][::-1]:
-        route = route[:-1][:]
-        
-    return route
-
-
-def find_nearest_edge_point(edge_pts, point, dist_func=vincenty_inverse):
-    '''
-    Finds the edge index position of which is closest to the provided point.
-
-    Parameters
-    ----------
-    edge_pts : 
-    point : 
-
-    Returns
-    -------
-    int :
-        index value corresponding to nearest point on the edge to the provided 
-        point.
-    '''
-
-    return argmin(
-        [dist_func((point[0], point[1]), (y, x)) for x, y in edge_pts])
-
-
-def route_across_single_edge(G, edge, orig, dest):
-    '''When routing across a single network edge
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    Notes
-    -----
-    '''
-
-    # get edge geometry
-    edge_pts = get_edge_geometry(G, edge)
-
-    # find nearest edge point
-    orig_idx = find_nearest_edge_point(edge_pts, orig)
-    dest_idx = find_nearest_edge_point(edge_pts, dest)
-    
-    # if orig and dest share the same closest node, there is nothing to route.
-    if orig_idx == dest_idx:
-        print('points are too close together. try interpolating...')
-        return [], [], []
-
-    # closest points on edge aling with direction of travel
-    if dest_idx > orig_idx:
-        return [], edge_pts[orig_idx:dest_idx+1], []
-
-    # closest points on edge are opposite the direction of travel
-    if orig_idx > dest_idx:
-        return [], edge_pts[dest_idx:orig_idx+1][::-1], []
-
-
-def route_across_two_edges(G, orig_edge, dest_edge, orig, dest):
-    '''ROUTE ACROSS TWO EDGES
-    
-    Parameters
-    ----------
-    G : networkx.MultiDiGraph
-        input graph
-    orig_edge : edge tuple
-        edge nearest the origin point
-    dest_edge: edge tuple
-        edge neatest the destination point
-    orig : tuple
-        the (lat, lng) or (y, x) point representing the origin of the path
-    dest : tuple
-        the (lat, lng) or (y, x) point representing the destination of the path
-    
-    Returns
-    -------
-    tuple :
-        route : empty
-        orig_edge_p : partial edge
-        dest_edge_p : partial edge
-    '''
-    
-    orig_pts = get_edge_geometry(G, orig_edge)
-    dest_pts = get_edge_geometry(G, dest_edge)
-    orig_idx = find_nearest_edge_point(orig_pts, orig)
-    dest_idx = find_nearest_edge_point(dest_pts, dest)
-    
-    if orig_edge[0] == dest_edge[0]:
-        pass
-
-    if orig_edge[0] == dest_edge[1]:
-        pass
-
-    # last node of first edge matches first node of second edge
-    if orig_edge[1] == dest_edge[0]:
-        orig_edge_p = orig_pts[orig_idx:]
-        dest_edge_p = dest_pts[:dest_idx+1]
-
-    if orig_edge[1] == dest_edge[1]:
-        pass
-                
-    return [], orig_edge_p, dest_edge_p
-
-
-def route_across_multiple_edges(G, orig_edge, dest_edge, orig, dest):
-    '''
-    When routing iacross three or more edges.
-
-    Parameters
-    ----------
-    G : networkx.MultiDiGraph
-        input graph
-    orig_edge : tuple
-       graph edge unique identifier as a tuple: (u, v, key)
-    dest_edge : tuple
-        graph edge unique identifier as a tuple: (u, v, key)
-    orig : tuple
-        the (lat, lng) or (y, x) point representing the origin of the path
-    dest : tuple
-        the (lat, lng) or (y, x) point representing the destination of the path
-
-    Returns
-    -------
-    route :
-    orig_edge_p :
-    dest_edge_p : 
-    '''
-        
-    # compute initial route using the starting node from both e1 and e2 
-    route = nx_shortest_path(G, orig_edge[0], dest_edge[0], 'length')
-    
-     # eliminate overlapping edges
-    route = remove_overlapping_edge(route, orig_edge)
-    route = remove_overlapping_edge(route, dest_edge)
-
-    # compute partial edges
-    orig_edge_p = compute_partial_edge(G, route, orig_edge, orig)
-    dest_edge_p = compute_partial_edge(G, route, dest_edge, dest)
-    
-    # eliminate partial edges with only a single point
-    # >>> TODO: this should probably be fixed within the 
-    # >>> function "compute_partial_edge"
-    if len(orig_edge_p) == 1: orig_edge_p = []
-    if len(dest_edge_p) == 1: dest_edge_p = []
-    if len(route) == 1: 
-        route = []
-        dest_edge_p = dest_edge_p[::-1]
-    return route, orig_edge_p, dest_edge_p
-
-
-def shortest_path(
-        G, 
-        orig, 
-        dest, 
-        use_shapely=True):
+def shortest_path(G, orig_yx, dest_yx):
     '''
     Parameters
     ----------
     G : networkx.MultiDiGraph
         input graph
-    orig : tuple
+    orig_yx : tuple
         the (lat, lng) or (y, x) point representing the origin of the path
-    dest : tuple
+    dest_yx : tuple
         the (lat, lng) or (y, x) point representing the destination of the path
     
     Returns
@@ -426,48 +100,94 @@ def shortest_path(
         (route_dist, route, orig_edge_p, dest_edge_p)
     '''
     
-    # find nearest edges
-    orig_edge = get_nearest_edge(G, orig)
-    dest_edge = get_nearest_edge(G, dest)
+    # determine nearest edges
+    orig_edge = nearest_edges(G, orig_yx[1], orig_yx[0])
+    dest_edge = nearest_edges(G, dest_yx[1], dest_yx[0])
+    
+    # routing along same edge
+    if orig_edge == dest_edge:        
+        p_o, p_d = Point(orig_yx[::-1]), Point(dest_yx[::-1])
+        edge_geo = G.edges[orig_edge]['geometry']
+        orig_clip = edge_geo.project(p_o, normalized=True)
+        dest_clip = edge_geo.project(p_d, normalized=True)
+        orig_partial_edge = substring(edge_geo, orig_clip, dest_clip, normalized=True)  
+        dest_partial_edge = []
+        nx_route = []
+    
+    # routing across multiple edges
+    else:
+        nx_route = nx_shortest_path(G, orig_edge[0], dest_edge[0], 'length')
+        p_o, p_d = Point(orig_yx[::-1]), Point(dest_yx[::-1])
+        orig_geo = get_edge_geometry(G, orig_edge)
+        dest_geo = get_edge_geometry(G, dest_edge)
 
-    # routing on same edge ---> produces a single partial edge
-    if orig_edge == dest_edge:
-        route, orig_edge_p, dest_edge_p = route_across_single_edge(
-                G, orig_edge, orig, dest)
+        orig_clip = orig_geo.project(p_o, normalized=True)
+        dest_clip = dest_geo.project(p_d, normalized=True)
+
+        orig_partial_edge_1 = substring(orig_geo, orig_clip, 1, normalized=True)
+        orig_partial_edge_2 = substring(orig_geo, 0, orig_clip, normalized=True)
+        dest_partial_edge_1 = substring(dest_geo, dest_clip, 1, normalized=True)
+        dest_partial_edge_2 = substring(dest_geo, 0, dest_clip, normalized=True)        
         
-    # different edges
-    if orig_edge != dest_edge:
+        # when the nx route is just a single node, this is a bit of an edge case
+        if len(nx_route) <= 2:
+            nx_route = []
+            if orig_partial_edge_1.intersects(dest_partial_edge_1):
+                orig_partial_edge = orig_partial_edge_1
+                dest_partial_edge = dest_partial_edge_1
+                
+            if orig_partial_edge_1.intersects(dest_partial_edge_2):
+                orig_partial_edge = orig_partial_edge_1
+                dest_partial_edge = dest_partial_edge_2
+                
+            if orig_partial_edge_2.intersects(dest_partial_edge_1):
+                orig_partial_edge = orig_partial_edge_2
+                dest_partial_edge = dest_partial_edge_1
+                
+            if orig_partial_edge_2.intersects(dest_partial_edge_2):
+                orig_partial_edge = orig_partial_edge_2
+                dest_partial_edge = dest_partial_edge_2
+            
+        # when routing across two or more edges
+        if len(nx_route) >= 3:
 
-        # compute initial route 
-        route = nx_shortest_path(G, orig_edge[0], dest_edge[0], 'length')
+            ### resolve origin
 
-        # annoying edge case: route matches first edge
-        if route[0] == orig_edge[0] and route[1] == dest_edge[0]:
-            route, orig_edge_p, dest_edge_p = route_across_multiple_edges(
-                G, orig_edge, dest_edge, orig, dest)
-
-        # one edge ---> produces two partial edges
-        elif len(route) == 2:
-            route, orig_edge_p, dest_edge_p = route_across_multiple_edges(
-                    G, orig_edge, dest_edge, orig, dest)
-
-        # multiple edges ---> produces a main route + two partial edges
-        # else len(route) >= 3:
-        else:
-            route, orig_edge_p, dest_edge_p = route_across_multiple_edges(
-                    G, orig_edge, dest_edge, orig, dest)
+            # check overlap with first route edge
+            route_orig_edge = get_edge_geometry(G, (nx_route[0], nx_route[1], 0))
+            if route_orig_edge.intersects(orig_partial_edge_1) and route_orig_edge.intersects(orig_partial_edge_2):
+                nx_route = nx_route[1:]
         
-    # compute final route distance
-    edge_lengths = get_route_edge_attributes(G, route, 'length')
-    route_dist = sum(edge_lengths)
-    route_dist += compute_partial_edge_length(G, orig_edge_p)
-    route_dist += compute_partial_edge_length(G, orig_edge_p)
+            # determine which origin partial edge to use
+            route_orig_edge = get_edge_geometry(G, (nx_route[0], nx_route[1], 0)) 
+            if route_orig_edge.intersects(orig_partial_edge_1):
+                orig_partial_edge = orig_partial_edge_1
+            else:
+                orig_partial_edge = orig_partial_edge_2
 
-    # convert partial edges to shapely LineString if necessary
-    if use_shapely:
-        if len(orig_edge_p) >= 2:
-            orig_edge_p = LineString([Point(x, y) for x, y in orig_edge_p])
-        if len(dest_edge_p) >= 2:
-            dest_edge_p = LineString([Point(x, y) for x, y in dest_edge_p])
+            ### resolve destination
 
-    return route_dist, route, orig_edge_p, dest_edge_p
+            # check overlap with last route edge
+            route_dest_edge = get_edge_geometry(G, (nx_route[-2], nx_route[-1], 0))
+            if route_dest_edge.intersects(dest_partial_edge_1) and route_dest_edge.intersects(dest_partial_edge_2):
+                nx_route = nx_route[:-1]
+
+            # determine which destination partial edge to use
+            route_dest_edge = get_edge_geometry(G, (nx_route[-2], nx_route[-1], 0)) 
+            if route_dest_edge.intersects(dest_partial_edge_1):
+                dest_partial_edge = dest_partial_edge_1
+            else:
+                dest_partial_edge = dest_partial_edge_2
+            
+    # final check
+    if orig_partial_edge:
+        if len(orig_partial_edge.coords) <= 1:
+            orig_partial_edge = []
+    if dest_partial_edge:
+        if len(dest_partial_edge.coords) <= 1:
+            dest_partial_edge = []
+
+    # compute total path length
+    route_dist = compute_taxi_length(G, nx_route, orig_partial_edge, dest_partial_edge)
+
+    return route_dist, nx_route, orig_partial_edge, dest_partial_edge

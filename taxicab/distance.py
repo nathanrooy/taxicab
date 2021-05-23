@@ -83,7 +83,7 @@ def get_edge_geometry(G, edge):
             (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])])
 
 
-def shortest_path(G, orig_yx, dest_yx):
+def shortest_path(G, orig_yx, dest_yx, orig_edge=None, dest_edge=None):
     '''
     Parameters
     ----------
@@ -101,8 +101,8 @@ def shortest_path(G, orig_yx, dest_yx):
     '''
     
     # determine nearest edges
-    orig_edge = nearest_edges(G, orig_yx[1], orig_yx[0])
-    dest_edge = nearest_edges(G, dest_yx[1], dest_yx[0])
+    if not orig_edge: orig_edge = nearest_edges(G, orig_yx[1], orig_yx[0])
+    if not dest_edge: dest_edge = nearest_edges(G, dest_yx[1], dest_yx[0])
     
     # routing along same edge
     if orig_edge == dest_edge:        

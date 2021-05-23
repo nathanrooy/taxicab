@@ -70,17 +70,18 @@ def get_edge_geometry(G, edge):
     the current edge is just a straight line. This results in an
     automatic assignment of edge end points.
     '''
+    
+    if G.edges.get(edge, 0):
+        if G.edges[edge].get('geometry', 0):
+            return G.edges[edge]['geometry']
+    
+    if G.edges.get((edge[1], edge[0], 0), 0):
+        if G.edges[(edge[1], edge[0], 0)].get('geometry', 0):
+            return G.edges[(edge[1], edge[0], 0)]['geometry']
 
-    if G.edges[edge].get('geometry', 0):
-        return G.edges[edge]['geometry']
-
-    elif G.edges[(edge[1], edge[0], 0)].get('geometry', 0):
-        return G.edges[(edge[1], edge[0], 0)]['geometry']
-
-    else:
-        return LineString([
-            (G.nodes[edge[0]]['x'], G.nodes[edge[0]]['y']),
-            (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])])
+    return LineString([
+        (G.nodes[edge[0]]['x'], G.nodes[edge[0]]['y']),
+        (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])])
 
 
 def shortest_path(G, orig_yx, dest_yx, orig_edge=None, dest_edge=None):

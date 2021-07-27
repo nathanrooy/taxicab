@@ -58,17 +58,17 @@ tc.plot.plot_graph_route(G, route)
 The returned route tuple is comprised of four elements:
 - Route length in meters
 ```python
->>> route[0]
+>>> route[n][0]
 669.0529395595279
 ```
 - List of node IDs representing the bulk of the route (this is identical to OSMnx).
 ```python
->>> route[1]
+>>> route[[n]1]
 [197546973, 2090608743, 197656382, 197633479]
 ```
 - And two partial edges represented by `shapely.geometry.linestring.LineString` objects. If populated, these represent the first and last segments of the route that extend from the first or last node to some point along that edge.
 ```python
->>> route[2], route[3]
+>>> route[n][2], route[n][3]
 (<shapely.geometry.linestring.LineString at 0x7f1aa08067c0>,
  <shapely.geometry.linestring.LineString at 0x7f1a3ccbd580>)
 ```
@@ -81,8 +81,10 @@ Parameters:
 - G : (networkx.MultiDiGraph) – input graph
 - orig : (tuple) – a (lat, lng) or (y, x) point
 - dest : (tuple) – a (lat, lng) or (y, x) point
+- via_yx : list of tuples -list with [(lat, lng)] or [(y, x)] represting additional coordinates on the route in numerical order after start
+    
 
-Returns: (tuple)
+Returns: list of (tuple)
 - route[0] : float – distance in meters of computed route.
 - route[1] : path – list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
 - route[2] : `shapely.geometry.linestring.LineString` – a partial edge representing the first non-complete edge in the route.
@@ -94,6 +96,3 @@ taxicab.plot.plot_graph_route()
 ```
 Used exactly the same way as `osmnx.plot.plot_graph_route` except that it uses the route produced by Taxicab instead. See OSMnx function reference [<a href="https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.plot.plot_graph_route">here</a>] 
 
-
-## Performance Considerations
-Coming soon...

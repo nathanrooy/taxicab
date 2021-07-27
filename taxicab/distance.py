@@ -84,27 +84,7 @@ def get_edge_geometry(G, edge):
         (G.nodes[edge[1]]['x'], G.nodes[edge[1]]['y'])])
 
 
-def shortest_path(G, orig_yx, dest_yx, orig_edge=None, dest_edge=None):
-    '''
-    Parameters
-    ----------
-    G : networkx.MultiDiGraph
-        input graph
-    orig_yx : tuple
-        the (lat, lng) or (y, x) point representing the origin of the path
-    dest_yx : tuple
-        the (lat, lng) or (y, x) point representing the destination of the path
-    
-    Returns
-    -------
-    tuple
-        (route_dist, route, orig_edge_p, dest_edge_p)
-    '''
-    
-    # determine nearest edges
-    if not orig_edge: orig_edge = nearest_edges(G, orig_yx[1], orig_yx[0])
-    if not dest_edge: dest_edge = nearest_edges(G, dest_yx[1], dest_yx[0])
-    
+def simple_path(G, orig_yx, dest_yx, orig_edge, dest_edge):
     # routing along same edge
     if orig_edge == dest_edge:        
         p_o, p_d = Point(orig_yx[::-1]), Point(dest_yx[::-1])
@@ -192,3 +172,73 @@ def shortest_path(G, orig_yx, dest_yx, orig_edge=None, dest_edge=None):
     route_dist = compute_taxi_length(G, nx_route, orig_partial_edge, dest_partial_edge)
 
     return route_dist, nx_route, orig_partial_edge, dest_partial_edge
+
+def via_path(G, orig_yx, dest_yx, via_yx, orig_edge, dest_edge, via_edges):
+    return_routes = []
+
+    #between start and first stop
+    return_routes.append(simple_path(G, orig_yx, via_yx[0], orig_edge, via_edges[0]))
+    if len(via_edges) == 1:
+        return_routes.append(simple_path(G, via_yx[0], dest_yx, via_edges[0], dest_edge))
+    else:
+        count = None
+        for i in range(1,len(via_edges)):
+            return_routes.append(simple_path(G, via_yx[i-1], via_yx[i], via_edges[i-1], via_edges[i]))
+            count = i
+        return_routes.append(simple_path(G, via_yx[count], dest_yx, via_edges[count], dest_edge))
+
+    return return_routes
+
+
+def shortest_path(G, orig_yx, dest_yx, via_yx=None, orig_edge=None, dest_edge=None, via_edges=None):
+    '''
+    Parameters
+    ----------
+    G : networkx.MultiDiGraph
+        input graph
+    orig_yx : tuple
+        the (lat, lng) or (y, x) point representing the origin of the path
+    dest_yx : tuple
+        the (lat, lng) or (y, x) point representing the destination of the path
+    via_yx : list of tuples
+        list with [(lat, lng)] or [(y, x)] represting additional coordinates on the route in numerical order after start
+    
+    Returns
+    -------
+    list of tuple
+        (route_dist, route, orig_edge_p, dest_edge_p)
+    '''
+    
+    # determine nearest edges
+    if not orig_edge: orig_edge = nearest_edges(G, orig_yx[1], orig_yx[0])
+    if not dest_edge: dest_edge = nearest_edges(G, dest_yx[1], dest_yx[0])
+    
+    if via_yx == None:
+        print("simple")
+        route_dist, nx_route, orig_partial_edge, dest_partial_edge = simple_path(G, orig_yx, dest_yx, orig_edge, dest_edge)
+        return_routes = [[route_dist, nx_route, orig_partial_edge, dest_partial_edge]]
+    else:
+        #determine nearest edged for additional coordiantes
+        via_edges = []
+        for vyx in via_yx:
+            via_edges.append(nearest_edges(G, vyx[1], vyx[0]))
+        return_routes = via_path(G, orig_yx, dest_yx, via_yx, orig_edge, dest_edge, via_edges)
+
+    return return_routes
+
+import os
+import osmnx as ox
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+NETWORK_PATH = os.path.join(THIS_DIR, '../tests/data/test_graph.osm')
+
+def test_short_route():
+    # load graph
+    G = ox.load_graphml(NETWORK_PATH)
+    orig = (39.0884, -84.3232)
+    via = [(39.0884, -84.3235),(39.08841, -84.3233)]
+    dest = (39.08843038088047, -84.32261113356783)
+    route = shortest_path(G, orig, dest, via)
+    print(50.61630824638745)
+    print(route)
+
+test_short_route()

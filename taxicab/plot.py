@@ -3,9 +3,9 @@ from osmnx.plot import plot_graph
 
 from shapely.geometry import LineString
 
-from constants import BODY
-from constants import ORIG_PARTIAL_EDGE
-from constants import DEST_PARTIAL_EDGE
+from taxicab.constants import BODY
+from taxicab.constants import ORIG_PARTIAL_EDGE
+from taxicab.constants import DEST_PARTIAL_EDGE
 
 def plot_graph_route(
     G,
@@ -16,7 +16,6 @@ def plot_graph_route(
     orig_dest_size=100,
     orig_color = "lime",
     dest_color = "r",
-    label='route',
     ax=None,
     **pg_kwargs,
     ):
@@ -62,40 +61,16 @@ def plot_graph_route(
                 y.extend((G.nodes[u]["y"], G.nodes[v]["y"]))
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
 
-        # plot start point if needed
-        if not route[ORIG_PARTIAL_EDGE]:
-            ax.scatter(x[0],  y[0], s=orig_dest_size, c=orig_color, alpha=route_alpha, edgecolor="none", zorder=10)
-
-        # plot end point if needed
-        if not route[DEST_PARTIAL_EDGE]:
-            ax.scatter(x[-1],  y[-1], s=orig_dest_size, c=dest_color, alpha=route_alpha, edgecolor="none", zorder=10)
-
     # plot partial edge
     if route[ORIG_PARTIAL_EDGE]:
         x, y = zip(*route[ORIG_PARTIAL_EDGE].coords)
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
-
-        # plot start point
-        ax.scatter(x[0],  y[0], s=orig_dest_size, c=orig_color, alpha=route_alpha, edgecolor="none", zorder=10)
-
-        # plot end point if needed
-        if not route[DEST_PARTIAL_EDGE] and not route[BODY]:
-            ax.scatter(x[-1],  y[-1], s=orig_dest_size, c=dest_color, alpha=route_alpha, edgecolor="none", zorder=10)
 
     # plot partial edge
     if route[DEST_PARTIAL_EDGE]:
         x, y = zip(*route[DEST_PARTIAL_EDGE].coords)
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
 
-        # plot end point
-        ax.scatter(x[-1],  y[-1], s=orig_dest_size, c=dest_color, alpha=route_alpha, edgecolor="none", zorder=10)
-
-        # plot start point if needed
-        if not route[ORIG_PARTIAL_EDGE] and not route[BODY]:
-             ax.scatter(x[0],  y[0], s=orig_dest_size, c=orig_color, alpha=route_alpha, edgecolor="none", zorder=10)
-
-    ax.lines[-1].set_label('route')
-    
     # save and show the figure as specified, passing relevant kwargs
     sas_kwargs = {"save", "show", "close", "filepath", "file_format", "dpi"}
     kwargs = {k: v for k, v in pg_kwargs.items() if k in sas_kwargs}

@@ -25,7 +25,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
         
       - name: Install taxicab
-        run: pip install .
+        run: pip3 install .
           
       - name: Run tests
         run: python -m unittest tests/main.py

@@ -1,11 +1,11 @@
-[![gh-actions-ci](https://img.shields.io/github/workflow/status/nathanrooy/taxicab/ci?style=flat-square)](https://github.com/nathanrooy/taxicab/actions?query=workflow%3Aci)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nathanrooy/taxicab/ci.yml?style=flat-square)
 [![GitHub license](https://img.shields.io/github/license/nathanrooy/taxicab?style=flat-square)](https://github.com/nathanrooy/taxicab/blob/main/LICENSE)
 [![codecov](https://img.shields.io/codecov/c/github/nathanrooy/taxicab.svg?style=flat-square)](https://codecov.io/gh/nathanrooy/taxicab)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/taxicab.svg?style=flat-square)](https://pypi.org/pypi/taxicab/)
 [![PyPi Version](https://img.shields.io/pypi/v/taxicab.svg?style=flat-square)](https://pypi.org/project/taxicab)
 
 ## Taxicab
-When routing between two points of longitude and latitude, the built in routing functionality in <a href="https://github.com/gboeing/osmnx">OSMnx</a> will find the nearest network nodes and route between those. This assumption is fine, and works for many applications but when you need routing with a little more accuracy you'll want to consider using Taxicab. Below are a few examples which highlight Taxicab usecases:
+When routing between two points of longitude and latitude, the built in routing functionality in <a href="https://github.com/gboeing/osmnx">OSMnx</a> will find the nearest network nodes and route between those. This assumption is fine, and works for many applications but when you need routing with a little more accuracy you'll want to consider using Taxicab. Below are a few examples which highlight Taxicab use cases:
 
 <b>When the nearest nodes are not that close:</b>
 <img style="padding-top:5em;" src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_03.jpg">
@@ -16,7 +16,7 @@ When routing between two points of longitude and latitude, the built in routing 
 <b>When routing along short routes:</b>
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_02.jpg">
 
-<b>When the nearest edges are the same:</b>
+<b>When the nearest nodes are the same:</b>
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/ex_04.jpg">
 
 ## Installation
@@ -30,7 +30,7 @@ pip install git+https://github.com/nathanrooy/taxicab
 ```
 
 ## Example usage
-Taxicab is designed to be used as a drop in replacement for the standard routing functionality found on OSMnx. So, like usual, download a portion of the OpenStreetMap graph:
+Taxicab is designed to be used as a drop-in replacement for the standard routing functionality found on OSMnx. So, like usual, download a portion of the OpenStreetMap graph:
 
 ```python
 from osmnx import graph_from_bbox
@@ -58,8 +58,8 @@ tc.plot.plot_graph_route(G, route)
 <img src="https://github.com/nathanrooy/taxicab/blob/main/docs/readme.png">
 
 
-The returned route is a named tuple is comprised of four elements:
-- Route length in meters (or what ever your graph units are).
+The returned route is a named tuple comprised of four elements:
+- Route length in meters (or whatever your graph units are).
 ```python
 >>> route[0]
 669.0529395595279
@@ -99,7 +99,7 @@ Parameters:
 
 Returns: (tuple)
 - route[0] or route.length : float - distance in meters of computed route.
-- route[1] or route.ndoes : path - list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
+- route[1] or route.nodes : path - list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
 - route[2] or route.orig_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the first non-complete edge in the route.
 - route[3] or route.dest_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the last non-complete edge in the route.
 - Note that if a route is successfully computed the distance will always be returned. However, depending on the length of the route and the underlying network, elements 1, 2, or 3 may be `null`.

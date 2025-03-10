@@ -30,9 +30,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: test networkx import
-        run: |
-          python
-          from networkx import shortest_path
+        run: python -c "from networkx import shortest_path"
           
       - name: Sanity check
         run: |

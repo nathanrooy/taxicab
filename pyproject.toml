@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [{name = "Nathan Rooy", email = "nathanrooy@gmail.com"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "matplotlib>=3.3.0",
+    "networkx>=2.5",
+    "numpy>=1.19",
+    "osmnx>=2.0.1",
+    "Shapely>=1.7",
+]
+description = "Accurate routing for Open Street Maps and OSMnx"
+license = { text = "MIT License" }
+name = "Taxicab"
+readme = "README.md"
+requires-python = ">=3.5"
+version = "0.1.1"
+
+[project.urls]
+Code = "https://github.com/nathanrooy/taxicab"
+Issues = "https://github.com/nathanrooy/taxicab/issues"

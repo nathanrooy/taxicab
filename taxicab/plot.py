@@ -3,10 +3,6 @@ from osmnx.plot import plot_graph
 
 from shapely.geometry import LineString
 
-from taxicab.constants import BODY
-from taxicab.constants import ORIG_PARTIAL_EDGE
-from taxicab.constants import DEST_PARTIAL_EDGE
-
 def plot_graph_route(
     G,
     route,
@@ -29,10 +25,10 @@ def plot_graph_route(
     '''
     
     linestring_error = 'partial edges must be of type: shapely.geometry.linestring.LineString'
-    if route[ORIG_PARTIAL_EDGE]:
-        assert type(route[ORIG_PARTIAL_EDGE]) == LineString, linestring_error
-    if route[DEST_PARTIAL_EDGE]:
-        assert type(route[DEST_PARTIAL_EDGE]) == LineString, linestring_error
+    if route.orig_edge:
+        assert type(route.orig_edge) == LineString, linestring_error
+    if route.dest_edge:
+        assert type(route.dest_edge) == LineString, linestring_error
         
     if ax is None:
         # plot the graph but not the route, and override any user show/close
@@ -45,9 +41,9 @@ def plot_graph_route(
 
 
     # plot main route if available
-    if route[BODY]:
+    if len(route.nodes) > 0:
         x, y  = [], []
-        for u, v in zip(route[BODY][:-1], route[BODY][1:]):
+        for u, v in zip(route.nodes[:-1], route.nodes[1:]):
             # if there are parallel edges, select the shortest in length
             data = min(G.get_edge_data(u, v).values(), key=lambda d: d["length"])
             if "geometry" in data:
@@ -62,13 +58,13 @@ def plot_graph_route(
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
 
     # plot partial edge
-    if route[ORIG_PARTIAL_EDGE]:
-        x, y = zip(*route[ORIG_PARTIAL_EDGE].coords)
+    if route.orig_edge:
+        x, y = zip(*route.orig_edge.coords)
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
 
     # plot partial edge
-    if route[DEST_PARTIAL_EDGE]:
-        x, y = zip(*route[DEST_PARTIAL_EDGE].coords)
+    if route.dest_edge:
+        x, y = zip(*route.dest_edge.coords)
         ax.plot(x, y, c=route_color, lw=route_linewidth, alpha=route_alpha)
 
     # save and show the figure as specified, passing relevant kwargs

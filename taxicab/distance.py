@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from itertools import compress
-from typing import Literal, NamedTuple
+from typing import Literal, NamedTuple, Tuple
 
 from networkx import MultiDiGraph
 from networkx import shortest_path as nx_shortest_path

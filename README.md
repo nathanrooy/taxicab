@@ -61,28 +61,18 @@ tc.plot.plot_graph_route(G, route)
 The returned route is a named tuple comprised of four elements:
 - Route length in meters (or whatever your graph units are).
 ```python
->>> route[0]
-669.0529395595279
-
 >>> route.length
 669.0529395595279
 ```
 
 - List of node IDs representing the bulk of the route (this is identical to OSMnx).
 ```python
->>> route[1]
-[197546973, 2090608743, 197656382, 197633479]
-
 >>> route.nodes
 [197546973, 2090608743, 197656382, 197633479]
 ```
 
 - And two partial edges represented by `shapely.geometry.linestring.LineString` objects. If populated, these represent the first and last segments of the route that extend from the first or last node to some point along that edge.
 ```python
->>> route[2], route[3]
-(<shapely.geometry.linestring.LineString at 0x7f1aa08067c0>,
- <shapely.geometry.linestring.LineString at 0x7f1a3ccbd580>)
-
 >>> route.orig_edge, route.dest_edge
 (<shapely.geometry.linestring.LineString at 0x7f1aa08067c0>,
  <shapely.geometry.linestring.LineString at 0x7f1a3ccbd580>)
@@ -97,12 +87,12 @@ Parameters:
 - orig : (tuple) - a (lat, lng) or (y, x) point
 - dest : (tuple) - a (lat, lng) or (y, x) point
 
-Returns: (tuple)
-- route[0] or route.length : float - distance in meters of computed route.
-- route[1] or route.nodes : path - list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
-- route[2] or route.orig_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the first non-complete edge in the route.
-- route[3] or route.dest_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the last non-complete edge in the route.
-- Note that if a route is successfully computed the distance will always be returned. However, depending on the length of the route and the underlying network, elements 1, 2, or 3 may be `null`.
+Returns: (named tuple)
+- route.length : float - distance in meters of computed route.
+- route.nodes : path - list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
+- route.orig_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the first non-complete edge in the route.
+- route.dest_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the last non-complete edge in the route.
+- Note that if a route is successfully computed the distance will always be returned. However, depending on the length of the route and the underlying network, route.nodes, route.orig_edge, or route.dest_edge, may be `null`.
 
 ```python
 taxicab.plot.plot_graph_route()

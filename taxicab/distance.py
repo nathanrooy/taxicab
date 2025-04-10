@@ -1,7 +1,7 @@
 """Accurately compute the distance between two lat/lng pairs across an OSM graph."""
 
 from itertools import compress
-from types import Literal, NamedTuple, Optional, Tuple
+from typing import Literal, NamedTuple, Optional, Tuple
 
 from networkx import MultiDiGraph
 from networkx import shortest_path as nx_shortest_path
@@ -11,7 +11,12 @@ from shapely.geometry import LineString, Point
 from shapely.ops import substring
 
 Modes = Literal["towards", "away"]
-taxi_route = NamedTuple("route", ["length", "nodes", "orig_edge", "dest_edge"])
+
+class taxi_route(NamedTuple):
+    length:float
+    nodes:list
+    orig_edge:Optional[LineString]
+    dest_edge:Optional[LineString]
 
 
 def l2_dist(p1: Point, p2: Point) -> float:

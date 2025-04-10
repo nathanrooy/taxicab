@@ -1,7 +1,9 @@
 """Accurately compute the distance between two lat/lng pairs across an OSM graph."""
 
+from __future__ import annotations
+
 from itertools import compress
-from typing import Literal, NamedTuple, Optional, Tuple
+from typing import Literal, NamedTuple
 
 from networkx import MultiDiGraph
 from networkx import shortest_path as nx_shortest_path
@@ -12,11 +14,13 @@ from shapely.ops import substring
 
 Modes = Literal["towards", "away"]
 
-class taxi_route(NamedTuple):
+class TaxiRoute(NamedTuple):
+    """Taxicab route."""
+
     length:float
     nodes:list
-    orig_edge:Optional[LineString]
-    dest_edge:Optional[LineString]
+    orig_edge:LineString | None
+    dest_edge:LineString | None
 
 
 def l2_dist(p1: Point, p2: Point) -> float:
@@ -85,7 +89,7 @@ def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: Line
     return dist
 
 def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineString,
-    mode: Modes) -> Optional[LineString]:
+    mode: Modes) -> LineString | None:
     """
     Create a partial edge if it exits.
 
@@ -150,8 +154,8 @@ def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineS
     return partial_edges[correct_partial_edge]
 
 
-def shortest_path(G: MultiDiGraph, orig_yx: Tuple[float, float],
-    dest_yx: Tuple[float, float]) -> taxi_route:
+def shortest_path(G: MultiDiGraph, orig_yx: tuple[float, float],
+    dest_yx: tuple[float, float]) -> TaxiRoute:
     """Calculate the shortest path between two points.
 
     Parameters
@@ -213,5 +217,5 @@ def shortest_path(G: MultiDiGraph, orig_yx: Tuple[float, float],
 
     # compute final route distance and return
     route_dist = compute_taxi_length(G, shortest_common_path, orig_partial_edge, dest_partial_edge)
-    return taxi_route(route_dist, shortest_common_path, orig_partial_edge, dest_partial_edge)
+    return TaxiRoute(route_dist, shortest_common_path, orig_partial_edge, dest_partial_edge)
 

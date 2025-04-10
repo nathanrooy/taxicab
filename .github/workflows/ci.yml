@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
@@ -33,6 +33,11 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
           pip list
+
+      - name: Run pre-commit checks
+        run: |
+          pip install pre-commit
+          pre-commit run
           
       - name: Run tests
         run: python -m unittest tests/main.py

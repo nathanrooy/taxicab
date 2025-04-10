@@ -37,3 +37,15 @@ version = "0.1.1"
 [project.urls]
 Code = "https://github.com/nathanrooy/taxicab"
 Issues = "https://github.com/nathanrooy/taxicab/issues"
+
+[tool.ruff]
+line-length = 100
+include = ["taxicab/distance.py"]
+exclude = []
+
+[tool.ruff.lint]
+extend-ignore = ["N803"]
+extend-select = ["ALL"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

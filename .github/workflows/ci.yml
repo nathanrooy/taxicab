@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
@@ -33,7 +33,13 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
           pip list
-          
+
+      - name: Lint
+        if: ${{ matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest' }}
+        run: |
+          pip install ruff
+          ruff check taxicab/distance.py --output-format=github
+
       - name: Run tests
         run: python -m unittest tests/main.py
         

@@ -34,11 +34,12 @@ jobs:
           python -c "import sys; print(sys.version)"
           pip list
 
-      - name: Run pre-commit checks
+      - name: Lint
+        if: ${{ matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest' }}
         run: |
-          pip install pre-commit
-          pre-commit run
-          
+          pip install ruff
+          ruff check taxicab/distance.py --output-format=github-annotation --exit-code
+
       - name: Run tests
         run: python -m unittest tests/main.py
         

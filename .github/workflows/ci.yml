@@ -38,7 +38,7 @@ jobs:
         if: ${{ matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest' }}
         run: |
           pip install ruff
-          ruff check taxicab/distance.py --output-format=github-annotation --exit-code
+          ruff check taxicab/distance.py --output-format=github --exit-code
 
       - name: Run tests
         run: python -m unittest tests/main.py

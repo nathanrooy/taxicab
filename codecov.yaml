@@ -1,0 +1,3 @@
+ignore:
+  - taxicab/plot.py
+  - tests/**

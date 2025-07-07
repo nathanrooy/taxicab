@@ -64,7 +64,7 @@ def compute_linestring_length(ls: LineString) -> float:
 def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: LineString,
     dest_partial_edge: LineString) -> float:
     """
-    Compute the route complete taxi route length.
+    Compute the total taxi route length.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: Line
         partial edge covering the span between the origin point and the first node in nx_route
         (if it exists).
     dest_partial_edge : LineString
-        partial edge covering the span between the last node in the nx_route to the destiantion
+        partial edge covering the span between the last node in the nx_route to the destination
         point (if it exists).
     """
     dist = 0
@@ -91,7 +91,7 @@ def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: Line
 def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineString,
     mode: Modes) -> LineString | None:
     """
-    Create a partial edge if it exits.
+    Create a partial edge if it exists.
 
     Parameters
     ----------
@@ -100,8 +100,8 @@ def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineS
     anchor_pt : shapely.geometry.Point
         The origin or destination point.
     mode : Literal["towards", "away"]
-        "towards" -> partial edge coordiantes are moving towards the route_terminus_pt
-        "away" -> partial edge coordiantes are moving away from the route_terminus_pt
+        "towards" -> partial edge coordinates are moving towards the route_terminus_pt
+        "away" -> partial edge coordinates are moving away from the route_terminus_pt
 
     Returns
     -------

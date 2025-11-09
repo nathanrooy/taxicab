@@ -44,7 +44,7 @@ include = ["taxicab/distance.py"]
 exclude = []
 
 [tool.ruff.lint]
-extend-ignore = ["N803"]
+extend-ignore = ["B905","N803"]
 extend-select = ["ALL"]
 
 [tool.ruff.lint.pydocstyle]

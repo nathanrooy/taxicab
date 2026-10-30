@@ -36,7 +36,7 @@ def l2_dist(p1: Point, p2: Point) -> float:
     -------
     float : distance between p1 and p2
     """
-    return ((p1.x - p2.x)**2 + (p1.y - p2.y)**2)**0.5
+    return float(p1.distance(p2))
 
 
 def compute_linestring_length(ls: LineString) -> float:
@@ -50,16 +50,22 @@ def compute_linestring_length(ls: LineString) -> float:
     Returns
     -------
     float : partial edge length distance in meters
+
+    Raises
+    ------
+    TypeError
+        If `ls` is not a `shapely.geometry.LineString`.
     """
-    if isinstance(ls, LineString):
-        x, y = zip(*ls.coords)
+    if not isinstance(ls, LineString):
+        msg = "partial edges must be of type: shapely.geometry.linestring.LineString"
+        raise TypeError(msg)
 
-        dist = 0
-        for i in range(len(x) - 1):
-            dist += great_circle(y[i], x[i], y[i + 1], x[i + 1])
-        return dist
+    x, y = zip(*ls.coords)
 
-    return None
+    dist = 0.0
+    for i in range(len(x) - 1):
+        dist += great_circle(y[i], x[i], y[i + 1], x[i + 1])
+    return dist
 
 
 def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: LineString,

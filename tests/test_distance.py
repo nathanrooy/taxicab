@@ -59,6 +59,18 @@ class TestDistance(unittest.TestCase):
         self.assertIsNotNone(route.orig_edge)
         self.assertIsNotNone(route.dest_edge)
 
+    def test_compute_linestring_length_type_error(self):
+        """Test compute_linestring_length raises TypeError for non-LineString input."""
+        with self.assertRaises(TypeError):
+            tc.distance.compute_linestring_length("invalid_linestring")
+
+    def test_plot_graph_route_type_error(self):
+        """Test plot_graph_route raises TypeError when route edges are invalid types."""
+        from taxicab.distance import TaxiRoute
+        bad_route = TaxiRoute(length=100.0, nodes=[], orig_edge="not_a_linestring", dest_edge=None)
+        with self.assertRaises(TypeError):
+            tc.plot.plot_graph_route(G, bad_route)
+
 
 if __name__ == "__main__":
     unittest.main()

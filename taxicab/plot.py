@@ -24,11 +24,11 @@ def plot_graph_route(
     ---> https://github.com/gboeing/osmnx/blob/master/osmnx/plot.py <---
     '''
     
-    linestring_error = 'partial edges must be of type: shapely.geometry.linestring.LineString'
-    if route.orig_edge:
-        assert type(route.orig_edge) == LineString, linestring_error
-    if route.dest_edge:
-        assert type(route.dest_edge) == LineString, linestring_error
+    linestring_error = "partial edges must be of type: shapely.geometry.linestring.LineString"
+    if route.orig_edge is not None and not isinstance(route.orig_edge, LineString):
+        raise TypeError(linestring_error)
+    if route.dest_edge is not None and not isinstance(route.dest_edge, LineString):
+        raise TypeError(linestring_error)
         
     if ax is None:
         # plot the graph but not the route, and override any user show/close

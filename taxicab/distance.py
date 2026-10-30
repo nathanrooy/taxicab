@@ -14,13 +14,14 @@ from shapely.ops import substring
 
 Modes = Literal["towards", "away"]
 
+
 class TaxiRoute(NamedTuple):
     """Taxicab route."""
 
-    length:float
-    nodes:list
-    orig_edge:LineString | None
-    dest_edge:LineString | None
+    length: float
+    nodes: list
+    orig_edge: LineString | None
+    dest_edge: LineString | None
 
 
 def l2_dist(p1: Point, p2: Point) -> float:
@@ -50,12 +51,12 @@ def compute_linestring_length(ls: LineString) -> float:
     -------
     float : partial edge length distance in meters
     """
-    if type(ls) is LineString:
+    if isinstance(ls, LineString):
         x, y = zip(*ls.coords)
 
         dist = 0
-        for i in range(len(x)-1):
-            dist += great_circle(y[i], x[i], y[i+1], x[i+1])
+        for i in range(len(x) - 1):
+            dist += great_circle(y[i], x[i], y[i + 1], x[i + 1])
         return dist
 
     return None
@@ -78,6 +79,11 @@ def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: Line
     dest_partial_edge : LineString
         partial edge covering the span between the last node in the nx_route to the destination
         point (if it exists).
+
+    Returns
+    -------
+    float
+        Total length of the route in meters.
     """
     dist = 0
     if len(nx_route) > 1:
@@ -88,7 +94,8 @@ def compute_taxi_length(G: MultiDiGraph, nx_route: list, orig_partial_edge: Line
         dist += compute_linestring_length(dest_partial_edge)
     return dist
 
-def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineString,
+
+def create_partial_edge(route_terminus_pt: Point, anchor_pt: Point, edge: LineString,
     mode: Modes) -> LineString | None:
     """
     Create a partial edge if it exists.
@@ -125,11 +132,11 @@ def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineS
     # compute distances from each partial edge node to the route terminus
     dists = [
         [
-            l2_dist(route_terminus_pt, Point(partial_edges[0].coords[ 0])),
+            l2_dist(route_terminus_pt, Point(partial_edges[0].coords[0])),
             l2_dist(route_terminus_pt, Point(partial_edges[0].coords[-1])),
         ],
         [
-            l2_dist(route_terminus_pt, Point(partial_edges[1].coords[ 0])),
+            l2_dist(route_terminus_pt, Point(partial_edges[1].coords[0])),
             l2_dist(route_terminus_pt, Point(partial_edges[1].coords[-1])),
         ],
     ]
@@ -142,8 +149,8 @@ def create_partial_edge(route_terminus_pt: Point,  anchor_pt: Point, edge: LineS
     # determine the ordering of the partial edge
     reverse = False
     if (
-        (dists[correct_partial_edge][0] < dists[correct_partial_edge][1] and mode == "orig") or
-        (dists[correct_partial_edge][0] > dists[correct_partial_edge][1] and mode == "dest")
+        (dists[correct_partial_edge][0] < dists[correct_partial_edge][1] and mode == "towards") or
+        (dists[correct_partial_edge][0] > dists[correct_partial_edge][1] and mode == "away")
     ):
         reverse = True
 
@@ -218,4 +225,3 @@ def shortest_path(G: MultiDiGraph, orig_yx: tuple[float, float],
     # compute final route distance and return
     route_dist = compute_taxi_length(G, shortest_common_path, orig_partial_edge, dest_partial_edge)
     return TaxiRoute(route_dist, shortest_common_path, orig_partial_edge, dest_partial_edge)
-

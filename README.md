@@ -80,7 +80,7 @@ The returned route is a named tuple comprised of four elements:
 
 ## User reference
 ```python
-taxicab.distance.shortest_route(G, orig, dest)
+taxicab.distance.shortest_path(G, orig, dest)
 ```
 Parameters:
 - G : (networkx.MultiDiGraph) - input graph
@@ -92,7 +92,7 @@ Returns: (named tuple)
 - route.nodes : path - list of node IDs constituting the shortest path (this is identical to routes found in OSMnx).
 - route.orig_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the first non-complete edge in the route.
 - route.dest_edge : `shapely.geometry.linestring.LineString` - a partial edge representing the last non-complete edge in the route.
-- Note that if a route is successfully computed the distance will always be returned. However, depending on the length of the route and the underlying network, route.nodes, route.orig_edge, or route.dest_edge, may be `null`.
+- Note that if a route is successfully computed the distance will always be returned. However, depending on the length of the route and the underlying network, `route.nodes`, `route.orig_edge`, or `route.dest_edge` may be `None`.
 
 ```python
 taxicab.plot.plot_graph_route()

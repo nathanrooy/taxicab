@@ -28,6 +28,11 @@ class test_main(unittest.TestCase):
         dest = (39.08800, -84.32000)
         route = tc.distance.shortest_path(G, orig, dest)
         self.assertEqual(route.length, 848.8428082642993)
+        # verify partial edges are oriented in the direction of travel
+        first_node = (G.nodes[route.nodes[0]]["x"], G.nodes[route.nodes[0]]["y"])
+        last_node = (G.nodes[route.nodes[-1]]["x"], G.nodes[route.nodes[-1]]["y"])
+        self.assertEqual(route.orig_edge.coords[-1], first_node)
+        self.assertEqual(route.dest_edge.coords[0], last_node)
 
     def test_same_node(self):
         orig = (39.089, -84.319)

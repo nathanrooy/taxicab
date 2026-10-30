@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,7 +11,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -23,15 +22,15 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.3.0",
     "networkx>=2.5",
-    "numpy>=1.19",
+    "numpy>=1.22",
     "osmnx>=2.0.1",
-    "Shapely>=1.7",
+    "shapely>=2.0",
 ]
 description = "Accurate routing for Open Street Maps and OSMnx"
 license = { text = "MIT License" }
 name = "Taxicab"
 readme = "README.md"
-requires-python = ">=3.5"
+requires-python = ">=3.10"
 version = "0.1.2"
 
 [project.urls]
@@ -44,7 +43,7 @@ include = ["taxicab/distance.py"]
 exclude = []
 
 [tool.ruff.lint]
-extend-ignore = ["B905","N803"]
+extend-ignore = ["B905", "CPY001", "N803"]
 extend-select = ["ALL"]
 
 [tool.ruff.lint.pydocstyle]

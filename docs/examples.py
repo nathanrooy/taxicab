@@ -24,7 +24,7 @@ def plot_osmnx(G, orig, dest, padding):
     fig, ax = osmnx_plot_graph_route(G, osmnx_route, node_size=30, show=False, close=False)
     ax.scatter(orig[1], orig[0], c='lime', s=200, label='orig', marker='x')
     ax.scatter(dest[1], dest[0], c='red', s=200, label='dest', marker='x')
-    ax.set_ylim([min([orig[0] dest[0]])-bp, max([orig[0], dest[0]])+tp])
+    ax.set_ylim([min([orig[0], dest[0]])-bp, max([orig[0], dest[0]])+tp])
     ax.set_xlim([min([orig[1], dest[1]])-lp, max([orig[1], dest[1]])+rp])
     ax.lines[-1].set_label('route')
     plt.legend()

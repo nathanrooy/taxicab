@@ -37,6 +37,9 @@ version = "0.1.2"
 Code = "https://github.com/nathanrooy/taxicab"
 Issues = "https://github.com/nathanrooy/taxicab/issues"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 100
 include = ["taxicab/distance.py"]

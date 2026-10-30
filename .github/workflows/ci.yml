@@ -41,13 +41,13 @@ jobs:
           ruff check taxicab/distance.py --output-format=github
 
       - name: Run tests
-        run: python -m unittest tests/main.py
+        run: python -m unittest discover tests
 
       - name: Generate coverage report
         if: ${{ matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest' }}
         run: |
           pip install coverage
-          coverage run -m unittest tests/*.py
+          coverage run -m unittest discover tests
           coverage xml
 
       - name: Submit to codecov

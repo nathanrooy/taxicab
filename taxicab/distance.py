@@ -161,6 +161,33 @@ def create_partial_edge(route_terminus_pt: Point, anchor_pt: Point, edge: LineSt
     return partial_edges[correct_partial_edge]
 
 
+def get_edge_geometry(G: MultiDiGraph, edge: tuple) -> LineString:
+    """
+    Retrieve edge geometry or construct a straight LineString from endpoint nodes.
+
+    Parameters
+    ----------
+    G : networkx.MultiDiGraph
+        Input graph.
+    edge : tuple
+        Edge identifier tuple (u, v) or (u, v, key).
+
+    Returns
+    -------
+    shapely.geometry.LineString
+        The geometry of the edge.
+    """
+    edge_data = G.edges[edge]
+    geom = edge_data.get("geometry")
+    if geom is not None:
+        return geom
+    u, v = edge[0], edge[1]
+    return LineString([
+        (G.nodes[u]["x"], G.nodes[u]["y"]),
+        (G.nodes[v]["x"], G.nodes[v]["y"]),
+    ])
+
+
 def shortest_path(G: MultiDiGraph, orig_yx: tuple[float, float],
     dest_yx: tuple[float, float]) -> TaxiRoute:
     """Calculate the shortest path between two points.
@@ -192,7 +219,7 @@ def shortest_path(G: MultiDiGraph, orig_yx: tuple[float, float],
 
     # routing along the same edge
     if sorted(orig_edge) == sorted(dest_edge):
-        edge_geo = G.edges[orig_edge]["geometry"]
+        edge_geo = get_edge_geometry(G, orig_edge)
         orig_clip = edge_geo.project(p_orig, normalized=True)
         dest_clip = edge_geo.project(p_dest, normalized=True)
         orig_partial_edge = substring(edge_geo, orig_clip, dest_clip, normalized=True)
@@ -211,14 +238,14 @@ def shortest_path(G: MultiDiGraph, orig_yx: tuple[float, float],
         orig_partial_edge = create_partial_edge(
             Point([G.nodes[shortest_common_path[0]]["x"], G.nodes[shortest_common_path[0]]["y"]]),
             p_orig,
-            G.edges[orig_edge]["geometry"],
+            get_edge_geometry(G, orig_edge),
             mode="towards",
         )
 
         dest_partial_edge = create_partial_edge(
             Point([G.nodes[shortest_common_path[-1]]["x"], G.nodes[shortest_common_path[-1]]["y"]]),
             p_dest,
-            G.edges[dest_edge]["geometry"],
+            get_edge_geometry(G, dest_edge),
             mode="away",
         )
 

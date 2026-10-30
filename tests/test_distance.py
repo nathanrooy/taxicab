@@ -44,6 +44,21 @@ class TestDistance(unittest.TestCase):
         route = tc.distance.shortest_path(G, orig, dest)
         self.assertAlmostEqual(route.length, 878.0271885609947, places=8)
 
+    def test_missing_geometry_fallback(self):
+        """Test routing when edges lack a 'geometry' attribute (straight line fallback)."""
+        import copy
+        G_no_geom = copy.deepcopy(G)
+        for _, _, _, d in G_no_geom.edges(keys=True, data=True):
+            if "geometry" in d:
+                del d["geometry"]
+
+        orig = (39.08710, -84.31050)
+        dest = (39.08800, -84.32000)
+        route = tc.distance.shortest_path(G_no_geom, orig, dest)
+        self.assertGreater(route.length, 0)
+        self.assertIsNotNone(route.orig_edge)
+        self.assertIsNotNone(route.dest_edge)
+
 
 if __name__ == "__main__":
     unittest.main()

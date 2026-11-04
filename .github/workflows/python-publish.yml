@@ -1,27 +1,37 @@
 name: Upload Python Package
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
+    environment: pypi
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
-    - name: Install dependencies
+
+    - name: Install build tools
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install build wheel twine
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        python3 -m build --sdist
-        python3 -m build --wheel
-        twine upload dist/*
+        python3 -m pip install build
+
+    - name: Build package
+      run: python3 -m build
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_TOKEN }}
+

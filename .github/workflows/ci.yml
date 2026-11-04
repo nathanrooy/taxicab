@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 0 1 * *' # 1st of every month cron check
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -25,9 +28,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
       - name: Install taxicab
-        run: pip install .
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
         
       - name: Sanity check
         run: |

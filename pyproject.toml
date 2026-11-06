@@ -42,12 +42,16 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-include = ["taxicab/distance.py"]
+include = ["taxicab/**/*.py", "tests/**/*.py"]
 exclude = []
 
 [tool.ruff.lint]
 extend-ignore = ["B905", "CPY001", "N803"]
 extend-select = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"taxicab/plot.py" = ["PLC2701", "PLR0917"]
+"tests/*" = ["INP001", "PT009", "PT027"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
